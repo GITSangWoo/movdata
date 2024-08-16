@@ -3,6 +3,7 @@ import os
 import json
 import time
 from tqdm import tqdm 
+import pandas as pd 
 
 API_KEY = os.getenv('MOVIE_API_KEY')
 
@@ -41,3 +42,29 @@ def save_movies(year, per_page=10, sleep_time=1):
     
     save_json(all_data,file_path)
     return True 
+   
+def save_details(year,sleep_time=1):
+    file_path = f'data/movies/year={year}/data.json'
+    save_path =  f'data/movies_details/year={year}/data.json'
+    
+    rj=pd.read_json(file_path) 
+    movie_cds=rj['movieCd']
+    if os.path.exists(save_path):
+        return False
+    
+    all_data=[]
+    for movie_cd in tqdm(movie_cds):
+        time.sleep(sleep_time)
+        url = f"https://www.kobis.or.kr/kobisopenapi/webservice/rest/movie/searchMovieInfo.json?key={API_KEY}&movieCd={movie_cd}"
+        r = req(url)
+        d = r['movieInfoResult']['movieInfo']
+        all_data.extend(d)
+
+    save_json(all_data, save_path)    
+    return True 
+
+
+
+    
+
+
