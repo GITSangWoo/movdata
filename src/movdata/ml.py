@@ -1,4 +1,4 @@
-import request
+import requests
 import os
 import json
 import time
@@ -19,14 +19,15 @@ def req(url):
     j = r.json()
     return j 
 
-def save_movies(year, per_page=10, sleep_time+1):
+def save_movies(year, per_page=10, sleep_time=1):
     file_path = f'data/movies/year={year}/data.json'
     
     # 위 경로가 있으면 API 호출을 멈추고 프로그램 종료
-    
+    if os.path.exists(file_path):
+       return False
     # totCnt 가져오고 total_pages 계산 
     url_base = f"https://kobis.or.kr/kobisopenapi/webservice/rest/movie/searchMovieList.json?key={API_KEY}&openStartDt={year}&openEndDt={year}"
-    r = req(url_base + f"curPage=1")
+    r = req(url_base + f"&curPage=1")
     tot_cnt = r['movieListResult']['totCnt']
     total_pages = (tot_cnt // per_page) + 1  
 
@@ -34,7 +35,7 @@ def save_movies(year, per_page=10, sleep_time+1):
     all_data = []
     for page in tqdm(range(1, total_pages + 1)):
         time.sleep(sleep_time)
-        r = req(url) 
+        r = req(url_base + f"&curPage={page}") 
         d = r['movieListResult']['movieList']
         all_data.extend(d)
     
