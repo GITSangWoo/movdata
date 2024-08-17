@@ -63,8 +63,38 @@ def save_details(year,sleep_time=1):
     save_json(all_data, save_path)    
     return True 
 
+def save_complist(year,sleep_time=1):
+    file_path = f'data/movies/year={year}/data.json'
+    save_path = f'data/movies_complist/year={year}/data.json'
 
-
+    if os.path.exists(save_path):
+        return False
     
+    rj=pd.read_json(file_path)
+    companylist=rj[rj['companys'].apply(lambda x : len(x)>0)]['companys'].drop_duplicates()
+       
+    all_data=[]
+    for compNm in tqdm(companylist):
+        time.sleep(sleep_time)
+        url = f"https://kobis.or.kr/kobisopenapi/webservice/rest/company/searchCompanyList.json?key={API_KEY}&companyNm={compNm}"
+        r = req(url)  
+        d = r['companyListResult']['companyList']
+        all_data.extend(d)
+    
+    save_json(all_data, save_path)
+    return True
+         
+
+
+
+
+
+
+
+
+
+
+
+
 
 
