@@ -1,4 +1,4 @@
-from movdata.ml import save_movies,save_details,save_complist,save_compdetails,save_actorlist
+from movdata.ml import save_movies,save_details,save_complist,save_compdetails,save_actorlist,save_actordetails
 
 
 def test_save_movies():
@@ -26,4 +26,8 @@ def test_save_compdetails():
 
 def test_save_actorlist():
     r = save_actorlist(2015,sleep_time=0.1)
+    assert r
+
+def test_save_actordetails():
+    r = save_actordetails(2015,sleep_time=0.1)
     assert r

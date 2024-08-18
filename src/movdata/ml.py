@@ -57,12 +57,10 @@ def save_details(year,sleep_time=1):
     for movie_cd in tqdm(movie_cds):
         time.sleep(sleep_time)
         url = f"https://www.kobis.or.kr/kobisopenapi/webservice/rest/movie/searchMovieInfo.json?key={API_KEY}&movieCd={movie_cd}"
-        print(url)
         r = req(url)
         d = r['movieInfoResult']['movieInfo']
         all_data.append(d)
 
-    print(all_data)
     save_json(all_data, save_path)    
     return True 
 
@@ -128,19 +126,30 @@ def save_actorlist(year,sleep_time=1):
     for actor in tqdm(testlist):
         actorNm=actor['peopleNm']
         url = f"https://kobis.or.kr/kobisopenapi/webservice/rest/people/searchPeopleList.json?key={API_KEY}&peopleNm={actorNm}"
-        print(url)
         r = req(url)
         d = r['peopleListResult']['peopleList'][0]
-        print(d)
         all_data.append(d)
-    print(all_data)    
 
     save_json(all_data, save_path)
 
 
 
+def save_actordetails(year,sleep_time=1):
+    file_path = f'data/movies_actorlist/year={year}/data.json'
+    save_path = f'data/movies_actordetails/year={year}/data.json'
 
+    if os.path.exists(save_path):
+        return False
+    
+    rj=pd.read_json(file_path)
+    actorCds=rj['peopleCd']    
+  
+    all_data=[]
+    for actorCd in tqdm(actorCds):
+        url = f"https://kobis.or.kr/kobisopenapi/webservice/rest/people/searchPeopleInfo.json?key={API_KEY}&peopleCd={actorCd}"
+        r = req(url)
+        d = r['peopleInfoResult']['peopleInfo']
+        all_data.append(d)
 
-
-
+    save_json(all_data, save_path)
 
