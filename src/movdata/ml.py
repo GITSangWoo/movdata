@@ -5,7 +5,8 @@ import time
 from tqdm import tqdm 
 import pandas as pd 
 
-API_KEY = os.getenv('MOVIE_API_KEY')
+# API_KEY = os.getenv('MOVIE_API_KEY')
+API_KEY = "86025ba52764eab7da220b6cf003a8a3" 
 
 def save_json(data, file_path):
     # 파일저장 경로 MKDIR
@@ -59,8 +60,9 @@ def save_details(year,sleep_time=1):
         print(url)
         r = req(url)
         d = r['movieInfoResult']['movieInfo']
-        all_data.extend(d)
+        all_data.append(d)
 
+    print(all_data)
     save_json(all_data, save_path)    
     return True 
 
@@ -78,10 +80,9 @@ def save_complist(year,sleep_time=1):
         time.sleep(sleep_time)
         compNm=compNms[0]['companyNm']
         url = f"https://kobis.or.kr/kobisopenapi/webservice/rest/company/searchCompanyList.json?key={API_KEY}&companyNm={compNm}"
-        print(url)
         r = req(url)  
         d = r['companyListResult']['companyList']
-        all_data.extend(d)
+        all_data.append(d)
     
     save_json(all_data, save_path)
     return True
@@ -99,20 +100,42 @@ def save_compdetails(year,sleep_time=1):
     companylist=rj[rj['companys'].apply(lambda x : len(x)>0)]['companys'].drop_duplicates()
        
     all_data=[]
-    for compCds in companylist:
+    for compCds in tqdm(companylist):
         time.sleep(sleep_time)
         compCd=compCds[0]['companyCd']
         url = f"https://www.kobis.or.kr/kobisopenapi/webservice/rest/company/searchCompanyInfo.json?key={API_KEY}&companyCd={compCd}"
         r = req(url)  
         d = r['companyInfoResult']['companyInfo']
-        all_data.extend(d)
+        all_data.append(d)
     
     save_json(all_data, save_path)
     return True
 
 
+def save_actorlist(year,sleep_time=1):
+    file_path = f'data/movies_details/year={year}/data.json'
+    save_path = f'data/movies_actorlist/year={year}/data.json'
 
+    if os.path.exists(save_path):
+        return False
+    
+    rj=pd.read_json(file_path)
+    # actorlist=rj['actors'].sum()
+    actorlist=rj['actors'][0:10]
+    testlist=actorlist.sum()
+       
+    all_data=[]
+    for actor in tqdm(testlist):
+        actorNm=actor['peopleNm']
+        url = f"https://kobis.or.kr/kobisopenapi/webservice/rest/people/searchPeopleList.json?key={API_KEY}&peopleNm={actorNm}"
+        print(url)
+        r = req(url)
+        d = r['peopleListResult']['peopleList'][0]
+        print(d)
+        all_data.append(d)
+    print(all_data)    
 
+    save_json(all_data, save_path)
 
 
 
