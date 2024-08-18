@@ -56,6 +56,7 @@ def save_details(year,sleep_time=1):
     for movie_cd in tqdm(movie_cds):
         time.sleep(sleep_time)
         url = f"https://www.kobis.or.kr/kobisopenapi/webservice/rest/movie/searchMovieInfo.json?key={API_KEY}&movieCd={movie_cd}"
+        print(url)
         r = req(url)
         d = r['movieInfoResult']['movieInfo']
         all_data.extend(d)
@@ -71,12 +72,13 @@ def save_complist(year,sleep_time=1):
         return False
     
     rj=pd.read_json(file_path)
-    companylist=rj[rj['companys'].apply(lambda x : len(x)>0)]['companys'].drop_duplicates()
-       
+    companylist=rj[rj['companys'].apply(lambda x : len(x)>0)]['companys'].drop_duplicates()      
     all_data=[]
-    for compNm in tqdm(companylist):
+    for compNms in tqdm(companylist):
         time.sleep(sleep_time)
+        compNm=compNms[0]['companyNm']
         url = f"https://kobis.or.kr/kobisopenapi/webservice/rest/company/searchCompanyList.json?key={API_KEY}&companyNm={compNm}"
+        print(url)
         r = req(url)  
         d = r['companyListResult']['companyList']
         all_data.extend(d)
@@ -86,6 +88,27 @@ def save_complist(year,sleep_time=1):
          
 
 
+def save_compdetails(year,sleep_time=1):
+    file_path = f'data/movies/year={year}/data.json'
+    save_path = f'data/movies_compdetails/year={year}/data.json'
+
+    if os.path.exists(save_path):
+        return False
+    
+    rj=pd.read_json(file_path)
+    companylist=rj[rj['companys'].apply(lambda x : len(x)>0)]['companys'].drop_duplicates()
+       
+    all_data=[]
+    for compCds in companylist:
+        time.sleep(sleep_time)
+        compCd=compCds[0]['companyCd']
+        url = f"https://www.kobis.or.kr/kobisopenapi/webservice/rest/company/searchCompanyInfo.json?key={API_KEY}&companyCd={compCd}"
+        r = req(url)  
+        d = r['companyInfoResult']['companyInfo']
+        all_data.extend(d)
+    
+    save_json(all_data, save_path)
+    return True
 
 
 
