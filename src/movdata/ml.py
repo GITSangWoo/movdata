@@ -20,7 +20,7 @@ def req(url):
     j = r.json()
     return j 
 
-def save_movies(year, per_page=10, sleep_time=1):
+def save_movies(year, per_page=10, limit=0, sleep_time=1):
     file_path = f'data/movies/year={year}/data.json'
     
     # 위 경로가 있으면 API 호출을 멈추고 프로그램 종료
@@ -34,12 +34,22 @@ def save_movies(year, per_page=10, sleep_time=1):
 
     # total_pages 만큼 Loop 돌면서 API 호출  
     all_data = []
-    for page in tqdm(range(1, total_pages + 1)):
-        time.sleep(sleep_time)
-        r = req(url_base + f"&curPage={page}") 
-        d = r['movieListResult']['movieList']
-        all_data.extend(d)
-    
+    if limit != 0:
+        for page in tqdm(range(1, limit + 1)):
+            time.sleep(sleep_time)
+            r = req(url_base + f"&curPage={page}") 
+            print(r)
+            d = r['movieListResult']['movieList']
+            print(d)
+            all_data.extend(d)
+        print(all_data)
+    elif limit == 0:
+        for page in tqdm(range(1, total_pages + 1)):
+            time.sleep(sleep_time)
+            r = req(url_base + f"&curPage={page}") 
+            d = r['movieListResult']['movieList']
+            all_data.extend(d)
+
     save_json(all_data,file_path)
     return True 
    
